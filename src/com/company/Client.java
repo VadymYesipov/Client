@@ -19,7 +19,40 @@ public class Client {
     public Client() throws IOException {
         socket = new Socket("85.90.209.113", 8888);
 
-        while (true) {
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    Scanner scanner = new Scanner(System.in);
+                    char[] chars = scanner.nextLine().toCharArray();
+                    byte[] buffer = new byte[chars.length];
+                    for (int i = 0; i < chars.length; i++) {
+                        buffer[i] = (byte) chars[i];
+                    }
+                    try {
+                        socket.getOutputStream().write(buffer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        System.out.print((char) socket.getInputStream().read());
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+
+        /*while (true) {
             Scanner scanner = new Scanner(System.in);
             char[] chars = scanner.nextLine().toCharArray();
             byte[] buffer = new byte[chars.length];
@@ -30,14 +63,52 @@ public class Client {
                     for (int i = 0; i < chars.length; i++) {
                         try {
                             socket.getOutputStream().write((byte) chars[i]);
-                            System.out.print((char) socket.getInputStream().read());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
-                    System.out.println();
+                    try {
+                        while (socket.getInputStream().available() > 0) {
+                            System.out.print((char) socket.getInputStream().read());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }).start();
-        }
+
+
+            /*new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    //buffer = scanner.nextLine();
+                    //System.out.println("her");
+                    for (int i = 0; i < chars.length; i++) {
+                        buffer[i] = (byte) chars[i];
+                        //System.out.println(chars[i] + "  " + buffer[i]);
+                    }
+                }
+            }).start();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        socket.getOutputStream().write(buffer);
+                        while (socket.getInputStream().available() > 0) {
+                            int b = socket.getInputStream().read();
+                            char ch = (char) b;
+                            System.out.print(ch);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+            /*while (socket.getInputStream().available() > 0) {
+                int b = socket.getInputStream().read();
+                char ch = (char) b;
+                System.out.print(ch);
+            }*/
+        //System.out.println();
     }
 }
