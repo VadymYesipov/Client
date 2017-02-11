@@ -42,8 +42,19 @@ public class Client {
             @Override
             public void run() {
                 while (true) {
+                    //System.out.println();
                     try {
-                        System.out.print((char) socket.getInputStream().read());
+                        //while(socket.getInputStream().available()>0) {
+                        byte[] buffer = new byte[255];
+                        int k = socket.getInputStream().read(buffer);
+
+
+                        //}
+                        if(socket.getInputStream().available()==0) {
+                            //System.out.print((char)k);
+                            System.out.print(new String(buffer));
+                            System.out.println();
+                        }
                     } catch (IOException e1) {
                         e1.printStackTrace();
                     }
