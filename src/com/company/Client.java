@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -18,8 +19,7 @@ public class Client {
 
     public Client() throws IOException {
         socket = new Socket("85.90.209.113", 8888);
-
-
+        //176
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -27,11 +27,20 @@ public class Client {
                     Scanner scanner = new Scanner(System.in);
                     char[] chars = scanner.nextLine().toCharArray();
                     byte[] buffer = new byte[chars.length];
+                    byte[] mode = new byte[chars.length];
                     for (int i = 0; i < chars.length; i++) {
+                        if((int)chars[i]>255)
+                        {
+                            mode[i] = 1;
+                        }
+                        else{
+                            mode[i] = 0;
+                        }
                         buffer[i] = (byte) chars[i];
                     }
                     try {
                         socket.getOutputStream().write(buffer);
+                        socket.getOutputStream().write(mode);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -42,17 +51,20 @@ public class Client {
             @Override
             public void run() {
                 while (true) {
-                    //System.out.println();
                     try {
-                        //while(socket.getInputStream().available()>0) {
-                        byte[] buffer = new byte[255];
-                        int k = socket.getInputStream().read(buffer);
-
-
-                        //}
-                        if(socket.getInputStream().available()==0) {
-                            //System.out.print((char)k);
-                            System.out.print(new String(buffer));
+                        while(socket.getInputStream().available()>0) {
+                            byte[] buffer = new byte[255];
+                            byte[] mode = new byte[255];
+                            socket.getInputStream().read(buffer);
+                            socket.getInputStream().read(mode);
+                            for (int i = 0; i < buffer.length; i++) {
+                                if (mode[i] == 1) {
+                                    System.out.print((char)(buffer[i]+1024));
+                                }
+                                else{
+                                    System.out.print((char)buffer[i]);
+                                }
+                            }
                             System.out.println();
                         }
                     } catch (IOException e1) {
@@ -61,65 +73,5 @@ public class Client {
                 }
             }
         }).start();
-
-
-        /*while (true) {
-            Scanner scanner = new Scanner(System.in);
-            char[] chars = scanner.nextLine().toCharArray();
-            byte[] buffer = new byte[chars.length];
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 0; i < chars.length; i++) {
-                        try {
-                            socket.getOutputStream().write((byte) chars[i]);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    try {
-                        while (socket.getInputStream().available() > 0) {
-                            System.out.print((char) socket.getInputStream().read());
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-
-
-            /*new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    //buffer = scanner.nextLine();
-                    //System.out.println("her");
-                    for (int i = 0; i < chars.length; i++) {
-                        buffer[i] = (byte) chars[i];
-                        //System.out.println(chars[i] + "  " + buffer[i]);
-                    }
-                }
-            }).start();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        socket.getOutputStream().write(buffer);
-                        while (socket.getInputStream().available() > 0) {
-                            int b = socket.getInputStream().read();
-                            char ch = (char) b;
-                            System.out.print(ch);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-            /*while (socket.getInputStream().available() > 0) {
-                int b = socket.getInputStream().read();
-                char ch = (char) b;
-                System.out.print(ch);
-            }*/
-        //System.out.println();
     }
 }
